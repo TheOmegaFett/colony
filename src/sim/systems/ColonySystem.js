@@ -48,6 +48,15 @@ export class ColonySystem {
       hive.drones.length * foodCfg.droneFoodUsePerTick +
       hive.soldiers.length * foodCfg.soldierFoodUsePerTick +
       hive.brood.length * foodCfg.broodFoodUsePerTick;
+    colony.foodUsePerTick = foodUse;
+    colony.survivalFoodTarget = Math.min(
+      foodCfg.maxFoodStock,
+      Math.max(12, foodUse * foodCfg.survivalFoodReserveTicks)
+    );
+    colony.maxSustainableFoodTarget = Math.min(
+      foodCfg.maxFoodStock,
+      Math.max(colony.survivalFoodTarget * 1.25, foodUse * foodCfg.maxFoodReserveTicks)
+    );
 
     let remainingNeed = foodUse;
     let consumedFood = 0;
@@ -89,6 +98,7 @@ export class ColonySystem {
 
   choosePriority(colony, queenAlive) {
     if (!queenAlive) return ColonyPriority.SURVIVE;
+    if (colony.foodStock < Math.max(8, colony.survivalFoodTarget * 0.65)) return ColonyPriority.SURVIVE;
     if (colony.dangerLevel > this.config.colony.highDangerThreshold) return ColonyPriority.DEFEND;
     if (colony.foodStock < this.config.colony.lowEnergyThreshold * 0.75) return ColonyPriority.FORAGE;
     if (colony.energy < this.config.colony.lowEnergyThreshold) return ColonyPriority.FORAGE;

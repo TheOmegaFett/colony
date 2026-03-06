@@ -139,15 +139,19 @@ test('food regen pool reduces age for queen and older workers', () => {
   assert.ok(hive.colony.ageRegenPool < 12);
 });
 
-test('colony collapses when queen dies and succession requirements are not met', () => {
+test('colony maintains queen continuity even with no workers', () => {
   const sim = new Simulation();
   const hive = sim.world.colonies[0];
 
   hive.colony.foodStock = 0;
   sim.world.drones = sim.world.drones.filter((d) => d.colonyId !== hive.id);
+  sim.world.soldiers = sim.world.soldiers.filter((s) => s.colonyId !== hive.id);
 
   hive.queen.takeDamage(99999);
   sim.tick();
 
-  assert.equal(sim.world.colonies.some((c) => c.id === hive.id), false);
+  const stillThere = sim.world.colonies.find((c) => c.id === hive.id);
+  const nextQueen = sim.world.queens.find((q) => q.colonyId === hive.id && q.alive);
+  assert.ok(stillThere);
+  assert.ok(nextQueen);
 });

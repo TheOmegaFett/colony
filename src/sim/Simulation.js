@@ -72,6 +72,9 @@ export class Simulation {
         health: this.config.queen.maxHp,
         dangerLevel: 0,
         priority: ColonyPriority.FORAGE,
+        foodUsePerTick: 0,
+        survivalFoodTarget: 18,
+        maxSustainableFoodTarget: 28,
         foodIncomeRecent: 0,
         starvationTicks: 0,
         successionCount: 0
@@ -198,9 +201,11 @@ export class Simulation {
   }
 
   getNestPosition(hive) {
+    const queenX = hive.queen?.x ?? hive.nest.x;
+    const queenY = hive.queen?.y ?? hive.nest.y;
     return {
-      x: hive.nest.established ? hive.nest.x : hive.queen.x,
-      y: hive.nest.established ? hive.nest.y : hive.queen.y
+      x: hive.nest.established ? hive.nest.x : queenX,
+      y: hive.nest.established ? hive.nest.y : queenY
     };
   }
 
@@ -352,12 +357,15 @@ export class Simulation {
     }
   }
 
-  promoteDroneToQueen(hive, drone) {
-    drone.alive = false;
+  promoteWorkerToQueen(hive, worker, emergency = false) {
+    if (worker) worker.alive = false;
+    const fallbackPos = this.getNestPosition(hive);
+    const spawnX = worker?.x ?? fallbackPos.x;
+    const spawnY = worker?.y ?? fallbackPos.y;
     const newQueen = new Queen({
       id: this.world.createId('queen'),
-      x: drone.x,
-      y: drone.y,
+      x: spawnX,
+      y: spawnY,
       config: this.config,
       colonyId: hive.id
     });
@@ -365,8 +373,12 @@ export class Simulation {
     newQueen.state = 'ALERT';
     newQueen.alertTimer = 0;
     newQueen.broodCooldown = Math.max(12, Math.floor(this.config.queen.broodCooldownTicks * 0.6));
-    newQueen.hp = Math.min(newQueen.maxHp, newQueen.maxHp * 0.7);
-    newQueen.ageTicks = Math.floor(drone.ageTicks * 0.5);
+    newQueen.hp = Math.min(newQueen.maxHp, newQueen.maxHp * (emergency ? 0.5 : 0.7));
+    if (worker) {
+      newQueen.ageTicks = Math.floor(worker.ageTicks * 0.5);
+    } else {
+      newQueen.ageTicks = Math.floor(randRange(newQueen.maxAgeTicks * 0.05, newQueen.maxAgeTicks * 0.2));
+    }
 
     hive.queen = newQueen;
     if (!hive.nest.established) {
@@ -375,8 +387,14 @@ export class Simulation {
       hive.nest.y = newQueen.y;
     }
     hive.colony.successionCount += 1;
-    hive.colony.foodStock = Math.max(0, hive.colony.foodStock - this.config.colony.successionFoodCost);
-    hive.colony.energy = Math.max(hive.colony.energy, this.config.colony.successionEnergyFloor);
+    const successionCost = emergency
+      ? this.config.colony.successionFoodCost * 0.5
+      : this.config.colony.successionFoodCost;
+    hive.colony.foodStock = Math.max(0, hive.colony.foodStock - successionCost);
+    hive.colony.energy = Math.max(
+      hive.colony.energy,
+      emergency ? this.config.colony.emergencyQueenEnergyFloor : this.config.colony.successionEnergyFloor
+    );
 
     this.world.queens.push(newQueen);
 
@@ -394,13 +412,19 @@ export class Simulation {
   handleQueenSuccession() {
     for (const hive of this.world.colonies) {
       if (hive.queen?.alive) continue;
-      if (hive.colony.foodStock < this.config.colony.successionFoodCost) continue;
+      const drones = this.world.drones.filter((d) => d.alive && d.colonyId === hive.id);
+      const soldiers = this.world.soldiers.filter((s) => s.alive && s.colonyId === hive.id);
+      const workers = [...drones, ...soldiers];
+      const canFundSuccession = hive.colony.foodStock >= this.config.colony.successionFoodCost;
 
-      const candidates = this.world.drones.filter((d) => d.alive && d.colonyId === hive.id);
-      if (!candidates.length) continue;
+      if (workers.length > 0 && (canFundSuccession || hive.colony.foodStock > 4)) {
+        workers.sort((a, b) => b.ageTicks - a.ageTicks);
+        this.promoteWorkerToQueen(hive, workers[0], false);
+        continue;
+      }
 
-      candidates.sort((a, b) => b.ageTicks - a.ageTicks);
-      this.promoteDroneToQueen(hive, candidates[0]);
+      // Hard survival rule: every colony must have a queen.
+      this.promoteWorkerToQueen(hive, null, true);
     }
   }
 
@@ -461,6 +485,7 @@ export class Simulation {
       world: this.world,
       getHiveContext: (colonyId) => this.getHiveContext(colonyId),
       spawnBrood: (x, y, colonyId) => this.agentSystem.spawnBrood(this.world, x, y, colonyId),
+      spawnDrone: (x, y, colonyId) => this.agentSystem.spawnDrone(this.world, x, y, colonyId),
       notifyThreatActivity: (x, y, strength) => this.notifyThreatActivity(x, y, strength)
     };
 
@@ -480,7 +505,7 @@ export class Simulation {
     this.handleQueenSuccession();
 
     this.world.queens = this.world.queens.filter((q) => q.alive);
-    this.world.colonies = this.world.colonies.filter((hive) => hive.queen && hive.queen.alive);
+    this.world.colonies = this.world.colonies.filter((hive) => Boolean(hive.queen));
     const aliveColonyIds = new Set(this.world.colonies.map((hive) => hive.id));
     this.world.drones = this.world.drones.filter((d) => d.alive && aliveColonyIds.has(d.colonyId));
     this.world.soldiers = this.world.soldiers.filter((s) => s.alive && aliveColonyIds.has(s.colonyId));

@@ -79,7 +79,7 @@ export class Queen extends Agent {
   }
 
   update(context) {
-    const { config, world, colony, comm, spawnBrood, hive } = context;
+    const { config, world, colony, comm, spawnBrood, spawnDrone, hive } = context;
 
     if (this.tickAging()) {
       this.state = QueenState.DEAD;
@@ -97,6 +97,45 @@ export class Queen extends Agent {
       this.relocateDangerTimer += 1;
     } else {
       this.relocateDangerTimer = Math.max(0, this.relocateDangerTimer - 2);
+    }
+
+    const nestX = hive.nest.established ? hive.nest.x : this.x;
+    const nestY = hive.nest.established ? hive.nest.y : this.y;
+
+    if (this.hp < this.maxHp && config.queen.selfHealFoodCost > 0) {
+      const reserve = Math.max(
+        config.queen.selfHealMinFoodReserve,
+        (colony.survivalFoodTarget || 0) * 0.35
+      );
+      const available = Math.max(0, colony.foodStock - reserve);
+      if (available > 0.01) {
+        const foodSpend = Math.min(config.queen.selfHealFoodCost, available);
+        colony.foodStock -= foodSpend;
+        const heal = (foodSpend / config.queen.selfHealFoodCost) * config.queen.selfHealHpPerTick;
+        this.hp = Math.min(this.maxHp, this.hp + heal);
+      }
+    }
+
+    const shouldReturnToNest =
+      hive.nest.established &&
+      this.state !== QueenState.SCOUTING &&
+      this.state !== QueenState.SETTLING &&
+      this.state !== QueenState.RELOCATING &&
+      distance(this.x, this.y, nestX, nestY) > config.queen.returnToNestDistance;
+
+    if (shouldReturnToNest) {
+      moveToward(this, nestX, nestY, config.queen.speed + 0.15);
+      comm.addSignal({
+        type: 'retreat',
+        x: this.x,
+        y: this.y,
+        radius: 160,
+        ttl: 3,
+        strength: 0.8,
+        sourceRole: 'queen'
+      });
+      world.clampEntity(this);
+      return;
     }
 
     if (this.state === QueenState.SCOUTING) {
@@ -145,6 +184,35 @@ export class Queen extends Agent {
       }
     } else if (this.state === QueenState.BROODING) {
       this.broodCooldown -= 1;
+      const workerCount = hive.drones.length + hive.soldiers.length;
+      const lowLabor = workerCount < 5;
+      const reserveRatio = lowLabor ? 0.28 : 0.55;
+      const requiredFoodReserve = Math.max(
+        config.queen.broodFoodCost * (lowLabor ? 1.1 : 1.4),
+        (colony.survivalFoodTarget || 0) * reserveRatio
+      );
+
+      if (
+        workerCount === 0 &&
+        this.broodCooldown <= 0 &&
+        colony.energy >= config.queen.broodEnergyCost + 6
+      ) {
+        if (colony.foodStock > 0) {
+          colony.foodStock = Math.max(0, colony.foodStock - Math.min(2, colony.foodStock));
+        }
+        colony.energy -= config.queen.broodEnergyCost + 3;
+        spawnDrone(this.x + randRange(-12, 12), this.y + randRange(-12, 12), hive.id);
+        this.broodCooldown = Math.max(16, Math.floor(config.queen.broodCooldownTicks * 0.45));
+        comm.addSignal({
+          type: 'brood_needs_resources',
+          x: this.x,
+          y: this.y,
+          radius: 150,
+          ttl: 10,
+          strength: 1.15,
+          sourceRole: 'queen'
+        });
+      }
 
       if (colony.dangerLevel > config.colony.highDangerThreshold) {
         this.state = QueenState.ALERT;
@@ -154,6 +222,7 @@ export class Queen extends Agent {
       if (
         this.broodCooldown <= 0 &&
         colony.foodStock >= config.queen.broodFoodCost &&
+        colony.foodStock >= requiredFoodReserve &&
         colony.energy >= config.queen.broodEnergyCost + 2
       ) {
         spawnBrood(this.x + randRange(-14, 14), this.y + randRange(-14, 14), hive.id);

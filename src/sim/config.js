@@ -42,7 +42,10 @@ export const SIM_CONFIG = {
     workerAgeRegenTargetsPerTick: 8,
     workerAgeRegenAgeRatioMin: 0.22,
     successionFoodCost: 32,
-    successionEnergyFloor: 25
+    successionEnergyFloor: 25,
+    emergencyQueenEnergyFloor: 16,
+    survivalFoodReserveTicks: toTicks(18),
+    maxFoodReserveTicks: toTicks(45)
   },
   queen: {
     speed: 0.7,
@@ -52,14 +55,23 @@ export const SIM_CONFIG = {
     broodCooldownTicks: 45,
     broodFoodCost: 7,
     broodEnergyCost: 2,
-    relocateDangerTicks: 120
+    relocateDangerTicks: 120,
+    selfHealFoodCost: 0.45,
+    selfHealHpPerTick: 0.95,
+    selfHealMinFoodReserve: 10,
+    returnToNestDistance: 95
   },
   drone: {
     speed: 1.8,
     hp: 18,
     vision: 95,
     carryAmount: 8,
-    evadeDistance: 70
+    evadeDistance: 70,
+    scoutSpecialistRatio: 0.28,
+    scoutMarkIntervalTicks: 28,
+    scoutMemoryTtlTicks: toTicks(35),
+    scoutRetargetTicks: toTicks(12),
+    mandatoryExploreShare: 0.18
   },
   soldier: {
     speed: 1.55,

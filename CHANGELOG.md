@@ -48,6 +48,14 @@ The format is based on Keep a Changelog and this project aims to follow Semantic
 - Agent spawn-age variance expanded to reduce synchronized die-off waves over time.
 - Food consumption now feeds a colony age-recovery pool that replenishes queen and older worker age (bounded per tick to avoid immortality).
 - Lifecycle tuning now uses 20 TPS-aware age ranges (seconds->ticks), with wider per-role variance and safer spawn-age jitter to reduce simultaneous age collapses.
+- Queen continuity invariant: colonies now always regenerate a queen (worker succession first, emergency queen fallback when needed).
+- Queen survival behavior expanded: self-heals by consuming food reserve, returns to nest if displaced, and reduces risky brood output under low reserves.
+- Drone forage/explore coordination updated:
+  - Uses colony reserve targets to avoid excessive stockpiling
+  - Shares food locations more aggressively
+  - Maintains partial specialist scouting so only a subset explores stale/unknown sectors while others service known food routes
+- Colony economy now computes survival and sustainable food targets each tick to drive survival-first priorities.
+- Emergency colony recovery path added: queen can spawn a bootstrap drone when a colony has no workers, allowing recovery from near-collapse states.
 - HUD expanded with colony food stock, starvation, and queen age indicators.
 - Snapshot payload expanded for multi-colony and lifecycle fields (colony stockpile/succession, entity ages).
 - `package.json` now declares `"license": "MIT"`.
