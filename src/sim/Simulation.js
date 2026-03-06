@@ -20,7 +20,7 @@ const modeBias = {
 
 const relationStateFromScore = (score) => {
   if (score > 0.45) return 'ally';
-  if (score < -0.25) return 'hostile';
+  if (score < -0.55) return 'hostile';
   return 'neutral';
 };
 
@@ -196,6 +196,28 @@ export class Simulation {
     return pressure;
   }
 
+  getNestPosition(hive) {
+    return {
+      x: hive.nest.established ? hive.nest.x : hive.queen.x,
+      y: hive.nest.established ? hive.nest.y : hive.queen.y
+    };
+  }
+
+  localFoodPressure(hive, radius = 520) {
+    const nest = this.getNestPosition(hive);
+    let nearbyNodes = 0;
+    let nearbyAmount = 0;
+
+    for (const food of this.world.food) {
+      const d = distance(nest.x, nest.y, food.x, food.y);
+      if (d > radius) continue;
+      nearbyNodes += 1;
+      nearbyAmount += food.amount;
+    }
+
+    return { nearbyNodes, nearbyAmount };
+  }
+
   updateDiplomacy() {
     for (const hive of this.world.colonies) hive.relations = {};
 
@@ -207,25 +229,43 @@ export class Simulation {
         const b = this.world.colonies[j];
 
         let score = (modeBias[a.mode] + modeBias[b.mode]) * 0.5;
+        const nestA = this.getNestPosition(a);
+        const nestB = this.getNestPosition(b);
+        const nestDistance = distance(nestA.x, nestA.y, nestB.x, nestB.y);
+        const foodA = this.localFoodPressure(a);
+        const foodB = this.localFoodPressure(b);
 
         const scarcity =
-          a.colony.energy < this.config.colony.lowEnergyThreshold ||
-          b.colony.energy < this.config.colony.lowEnergyThreshold ||
-          a.colony.foodStock < this.config.colony.lowEnergyThreshold * 0.8 ||
-          b.colony.foodStock < this.config.colony.lowEnergyThreshold * 0.8;
+          (
+            a.colony.energy < this.config.colony.lowEnergyThreshold &&
+            a.colony.foodStock < this.config.colony.lowEnergyThreshold * 0.9 &&
+            foodA.nearbyNodes < 2
+          ) ||
+          (
+            b.colony.energy < this.config.colony.lowEnergyThreshold &&
+            b.colony.foodStock < this.config.colony.lowEnergyThreshold * 0.9 &&
+            foodB.nearbyNodes < 2
+          );
 
         const abundance =
           a.colony.energy > this.config.colony.lowEnergyThreshold * 2 &&
           b.colony.energy > this.config.colony.lowEnergyThreshold * 2 &&
           a.colony.foodStock > this.config.colony.lowEnergyThreshold * 1.6 &&
           b.colony.foodStock > this.config.colony.lowEnergyThreshold * 1.6 &&
-          this.world.food.length > 5;
+          foodA.nearbyNodes >= 3 &&
+          foodB.nearbyNodes >= 3 &&
+          foodA.nearbyAmount > 90 &&
+          foodB.nearbyAmount > 90;
 
         const sharedThreatPressure = this.getSharedThreatPressure(a, b);
 
-        if (abundance) score += 0.45;
-        if (scarcity) score -= 0.55;
-        if (sharedThreatPressure > 0.35 && !scarcity) score += 0.5;
+        if (nestDistance > 900) score += 0.25;
+        else if (nestDistance > 600) score += 0.1;
+
+        if (abundance) score += 0.35;
+        if (scarcity) score -= 0.35;
+        if (scarcity && nestDistance < 480) score -= 0.25;
+        if (sharedThreatPressure > 0.35 && !scarcity) score += 0.45;
 
         if (a.mode === 'hostile' || b.mode === 'hostile') score -= 0.5;
         if (a.mode === 'friendly' && b.mode === 'friendly') score += 0.55;

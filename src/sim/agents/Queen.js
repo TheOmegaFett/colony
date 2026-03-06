@@ -23,7 +23,7 @@ export class Queen extends Agent {
       y,
       hp: config.queen.maxHp,
       speed: config.queen.speed,
-      maxAgeTicks: randRange(config.lifecycle.queenMaxAgeTicks * 0.85, config.lifecycle.queenMaxAgeTicks * 1.15)
+      maxAgeTicks: randRange(config.lifecycle.queenMinAgeTicks, config.lifecycle.queenMaxAgeTicks)
     });
 
     this.state = QueenState.SCOUTING;

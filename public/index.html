@@ -12,18 +12,17 @@
       <h3>Color Key</h3>
       <div class="legend-note">Entity hue tracks colony. Relations are in HUD. Wheel to zoom, left-drag to pan.</div>
       <div class="legend-grid">
-        <div class="legend-item"><span class="swatch queen"></span>Queen</div>
-        <div class="legend-item"><span class="swatch drone"></span>Drone</div>
+        <div class="legend-item"><span class="swatch colony-hue"></span>Colony hue (queen/drone/soldier/brood)</div>
         <div class="legend-item"><span class="swatch drone-carry"></span>Drone (carrying food)</div>
-        <div class="legend-item"><span class="swatch soldier"></span>Soldier</div>
-        <div class="legend-item"><span class="swatch brood"></span>Brood</div>
         <div class="legend-item"><span class="swatch threat"></span>Threat</div>
         <div class="legend-item"><span class="swatch food"></span>Food pellet</div>
-        <div class="legend-item"><span class="swatch nest"></span>Nest zone</div>
+        <div class="legend-item"><span class="swatch nest"></span>Nest zone (same hue as colony)</div>
         <div class="legend-item"><span class="swatch hazard"></span>Hazard zone</div>
         <div class="legend-item"><span class="swatch food-trail"></span>Food trail field</div>
         <div class="legend-item"><span class="swatch danger-trail"></span>Danger trail field</div>
       </div>
+      <h4 class="legend-subtitle">Colony Colors</h4>
+      <div id="colony-key" class="legend-grid"></div>
     </div>
     <canvas id="simCanvas"></canvas>
 

@@ -54,7 +54,11 @@ test('friendly colonies are allied when diplomacy updates', () => {
 test('competitive colonies can turn hostile under scarcity', () => {
   const sim = new Simulation();
   const a = sim.world.colonies[0];
-  const b = sim.createColony({ x: 950, y: 950, mode: 'competitive' });
+  const b = sim.createColony({
+    x: Math.min(sim.world.width - 60, a.queen.x + 120),
+    y: Math.min(sim.world.height - 60, a.queen.y + 120),
+    mode: 'competitive'
+  });
 
   a.mode = 'competitive';
   a.colony.energy = 0;
@@ -81,10 +85,11 @@ test('queen succession promotes oldest drone when food reserve allows it', () =>
     d.speed = 0;
     d.vx = 0;
     d.vy = 0;
+    d.ageTicks = 0;
   }
 
   drones[0].ageTicks = 10;
-  drones[1].ageTicks = 1000;
+  drones[1].ageTicks = 5000;
   drones[1].x = 321;
   drones[1].y = 432;
 

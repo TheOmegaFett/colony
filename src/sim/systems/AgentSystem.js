@@ -8,7 +8,7 @@ export class AgentSystem {
     this.config = config;
   }
 
-  spawnDrone(world, x, y, colonyId) {
+  spawnDrone(world, x, y, colonyId, ageTicks = 0) {
     const drone = new Drone({
       id: world.createId('drone'),
       x,
@@ -16,11 +16,12 @@ export class AgentSystem {
       colonyId,
       config: this.config
     });
+    drone.ageTicks = Math.max(0, Math.min(drone.maxAgeTicks - 1, ageTicks));
     world.drones.push(drone);
     return drone;
   }
 
-  spawnSoldier(world, x, y, colonyId) {
+  spawnSoldier(world, x, y, colonyId, ageTicks = 0) {
     const soldier = new Soldier({
       id: world.createId('soldier'),
       x,
@@ -28,6 +29,7 @@ export class AgentSystem {
       colonyId,
       config: this.config
     });
+    soldier.ageTicks = Math.max(0, Math.min(soldier.maxAgeTicks - 1, ageTicks));
     world.soldiers.push(soldier);
     return soldier;
   }
@@ -45,10 +47,12 @@ export class AgentSystem {
 
   spawnColonySwarm(world, colonyId, x, y, droneCount, soldierCount) {
     for (let i = 0; i < droneCount; i += 1) {
-      this.spawnDrone(world, x + randRange(-30, 30), y + randRange(-30, 30), colonyId);
+      const initialAge = randRange(0, this.config.lifecycle.droneMaxAgeTicks * 0.45);
+      this.spawnDrone(world, x + randRange(-30, 30), y + randRange(-30, 30), colonyId, initialAge);
     }
     for (let i = 0; i < soldierCount; i += 1) {
-      this.spawnSoldier(world, x + randRange(-25, 25), y + randRange(-25, 25), colonyId);
+      const initialAge = randRange(0, this.config.lifecycle.soldierMaxAgeTicks * 0.4);
+      this.spawnSoldier(world, x + randRange(-25, 25), y + randRange(-25, 25), colonyId, initialAge);
     }
   }
 
@@ -96,9 +100,23 @@ export class AgentSystem {
 
     for (const item of matured) {
       if (item.role === 'soldier') {
-        this.spawnSoldier(world, item.brood.x + randRange(-8, 8), item.brood.y + randRange(-8, 8), item.brood.colonyId);
+        const ageJitter = randRange(0, this.config.lifecycle.soldierMaxAgeTicks * 0.08);
+        this.spawnSoldier(
+          world,
+          item.brood.x + randRange(-8, 8),
+          item.brood.y + randRange(-8, 8),
+          item.brood.colonyId,
+          ageJitter
+        );
       } else {
-        this.spawnDrone(world, item.brood.x + randRange(-8, 8), item.brood.y + randRange(-8, 8), item.brood.colonyId);
+        const ageJitter = randRange(0, this.config.lifecycle.droneMaxAgeTicks * 0.08);
+        this.spawnDrone(
+          world,
+          item.brood.x + randRange(-8, 8),
+          item.brood.y + randRange(-8, 8),
+          item.brood.colonyId,
+          ageJitter
+        );
       }
     }
   }

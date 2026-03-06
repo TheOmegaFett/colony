@@ -70,6 +70,12 @@ body {
   font-weight: 600;
 }
 
+.legend-subtitle {
+  margin: 10px 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .legend-note {
   margin-bottom: 8px;
   font-size: 11px;
@@ -95,17 +101,18 @@ body {
   flex-shrink: 0;
 }
 
-.swatch.queen { background: #ffd16f; }
-.swatch.drone { background: #73dcb9; }
+.swatch.colony-hue { background: linear-gradient(135deg, #ffd16f, #7ed7ff, #c8ff82); }
 .swatch.drone-carry { background: #b3f37d; }
-.swatch.soldier { background: #8bb8f1; }
-.swatch.brood { background: #f0c985; }
 .swatch.threat { background: #ef6f59; }
 .swatch.food { background: #8fe864; }
 .swatch.nest { background: rgba(133, 120, 86, 0.52); }
 .swatch.hazard { background: rgba(204, 148, 82, 0.4); }
 .swatch.food-trail { background: rgba(109, 224, 133, 0.55); }
 .swatch.danger-trail { background: rgba(235, 98, 78, 0.6); }
+
+.swatch.dynamic-colony {
+  border-radius: 999px;
+}
 
 #context-menu {
   position: fixed;

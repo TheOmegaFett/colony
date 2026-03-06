@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 const hud = document.getElementById('hud');
 const menu = document.getElementById('context-menu');
 const colonySubmenu = document.getElementById('colony-submenu');
+const colonyKey = document.getElementById('colony-key');
 
 let latest = null;
 let tickMs = 100;
@@ -163,6 +164,23 @@ function colonyMap(snapshot) {
   const map = new Map();
   for (const colony of snapshot.colonies || []) map.set(colony.id, colony);
   return map;
+}
+
+function updateColonyLegend(snapshot) {
+  if (!colonyKey) return;
+
+  const colonies = snapshot.colonies || [];
+  if (!colonies.length) {
+    colonyKey.innerHTML = '<div class=\"legend-item\">No active colonies</div>';
+    return;
+  }
+
+  colonyKey.innerHTML = colonies
+    .map((colony) => {
+      const mode = colony.mode || 'competitive';
+      return `<div class=\"legend-item\"><span class=\"swatch dynamic-colony\" style=\"background:${colony.color}\"></span>${colony.name} (${mode})</div>`;
+    })
+    .join('');
 }
 
 function entityColor(colony, role, carrying = false) {
@@ -366,6 +384,7 @@ function draw(snapshot) {
   updatePreviousPositions(snapshot);
   frame += 1;
 
+  updateColonyLegend(snapshot);
   drawHud(snapshot);
 }
 

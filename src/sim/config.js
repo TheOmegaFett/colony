@@ -9,7 +9,7 @@ export const SIM_CONFIG = {
   startup: {
     drones: 12,
     soldiers: 4,
-    foodPellets: 6
+    foodPellets: 10
   },
   colony: {
     startingEnergy: 90,
@@ -19,16 +19,16 @@ export const SIM_CONFIG = {
     lowEnergyThreshold: 40,
     highDangerThreshold: 55,
     recoverDangerThreshold: 25,
-    baseFoodUsePerTick: 0.06,
-    queenFoodUsePerTick: 0.05,
-    droneFoodUsePerTick: 0.01,
-    soldierFoodUsePerTick: 0.015,
-    broodFoodUsePerTick: 0.012,
-    foodToEnergyRatio: 0.45,
-    extraFoodBurnPerTick: 0.3,
-    starvationEnergyPenalty: 0.8,
-    starvationQueenDamageTicks: 14,
-    starvationQueenDamage: 1.1,
+    baseFoodUsePerTick: 0.04,
+    queenFoodUsePerTick: 0.04,
+    droneFoodUsePerTick: 0.007,
+    soldierFoodUsePerTick: 0.01,
+    broodFoodUsePerTick: 0.009,
+    foodToEnergyRatio: 0.55,
+    extraFoodBurnPerTick: 0.2,
+    starvationEnergyPenalty: 0.55,
+    starvationQueenDamageTicks: 20,
+    starvationQueenDamage: 0.8,
     successionFoodCost: 32,
     successionEnergyFloor: 25
   },
@@ -46,7 +46,7 @@ export const SIM_CONFIG = {
     speed: 1.8,
     hp: 18,
     vision: 95,
-    carryAmount: 6,
+    carryAmount: 8,
     evadeDistance: 70
   },
   soldier: {
@@ -69,11 +69,12 @@ export const SIM_CONFIG = {
     upkeepEnergyCost: 0.6
   },
   lifecycle: {
-    queenMaxAgeTicks: 22000,
+    queenMinAgeTicks: 26000,
+    queenMaxAgeTicks: 36000,
     droneMinAgeTicks: 7500,
     droneMaxAgeTicks: 12000,
-    soldierMinAgeTicks: 9000,
-    soldierMaxAgeTicks: 14500,
+    soldierMinAgeTicks: 13000,
+    soldierMaxAgeTicks: 20000,
     threatMinAgeTicks: 6500,
     threatMaxAgeTicks: 11000
   },
