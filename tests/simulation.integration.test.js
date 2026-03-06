@@ -111,6 +111,34 @@ test('queen succession promotes oldest drone when food reserve allows it', () =>
   assert.equal(sim.world.drones.some((d) => d.id === promotedCandidateId), false);
 });
 
+test('food regen pool reduces age for queen and older workers', () => {
+  const sim = new Simulation();
+  const hive = sim.world.colonies[0];
+  const workers = [
+    ...sim.world.soldiers.filter((s) => s.colonyId === hive.id),
+    ...sim.world.drones.filter((d) => d.colonyId === hive.id)
+  ];
+
+  assert.ok(workers.length >= 3);
+
+  hive.colony.ageRegenPool = 12;
+  hive.queen.ageTicks = 1000;
+  const queenBefore = hive.queen.ageTicks;
+
+  for (let i = 0; i < 3; i += 1) {
+    workers[i].ageTicks = workers[i].maxAgeTicks * 0.9;
+  }
+
+  const workerBefore = workers.slice(0, 3).map((w) => w.ageTicks);
+
+  sim.buildHiveCache();
+  sim.applyAgeReplenishment();
+
+  assert.ok(hive.queen.ageTicks < queenBefore);
+  assert.ok(workers.slice(0, 3).some((w, i) => w.ageTicks < workerBefore[i]));
+  assert.ok(hive.colony.ageRegenPool < 12);
+});
+
 test('colony collapses when queen dies and succession requirements are not met', () => {
   const sim = new Simulation();
   const hive = sim.world.colonies[0];

@@ -68,6 +68,7 @@ export class Simulation {
       colony: {
         energy: this.config.colony.startingEnergy,
         foodStock: this.config.colony.startingFoodStock,
+        ageRegenPool: 0,
         health: this.config.queen.maxHp,
         dangerLevel: 0,
         priority: ColonyPriority.FORAGE,
@@ -403,6 +404,51 @@ export class Simulation {
     }
   }
 
+  applyAgeReplenishment() {
+    const cfg = this.config.colony;
+
+    for (const hive of this.world.colonies) {
+      let pool = hive.colony.ageRegenPool || 0;
+      if (pool <= 0.01) continue;
+
+      if (hive.queen?.alive && hive.queen.ageTicks > 0) {
+        const spend = Math.min(pool * 0.38, cfg.queenAgeRegenSpendMax);
+        hive.queen.ageTicks = Math.max(
+          0,
+          hive.queen.ageTicks - spend * cfg.queenAgeRegenPerPool
+        );
+        pool -= spend;
+      }
+
+      const index = this.hiveCache.get(hive.id) || { drones: [], soldiers: [] };
+      const candidates = [...index.soldiers, ...index.drones]
+        .filter(
+          (a) =>
+            a.alive &&
+            a.ageTicks > 0 &&
+            a.ageTicks / Math.max(1, a.maxAgeTicks) >= cfg.workerAgeRegenAgeRatioMin
+        )
+        .sort((a, b) => (b.ageTicks / b.maxAgeTicks) - (a.ageTicks / a.maxAgeTicks));
+
+      const targetCount = Math.min(candidates.length, cfg.workerAgeRegenTargetsPerTick);
+      if (targetCount > 0) {
+        const workerBudget = Math.min(pool, cfg.workerAgeRegenSpendMax);
+
+        for (let i = 0; i < targetCount; i += 1) {
+          const target = candidates[i];
+          const spend = workerBudget / targetCount;
+          target.ageTicks = Math.max(
+            0,
+            target.ageTicks - spend * cfg.workerAgeRegenPerPool
+          );
+        }
+        pool -= workerBudget;
+      }
+
+      hive.colony.ageRegenPool = Math.max(0, pool);
+    }
+  }
+
   tick() {
     this.world.tick += 1;
 
@@ -457,6 +503,8 @@ export class Simulation {
         (otherId) => this.relationBetween(hive.id, otherId)
       );
     }
+
+    this.applyAgeReplenishment();
 
     return this.snapshot();
   }

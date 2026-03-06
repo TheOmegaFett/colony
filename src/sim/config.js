@@ -29,6 +29,14 @@ export const SIM_CONFIG = {
     starvationEnergyPenalty: 0.55,
     starvationQueenDamageTicks: 20,
     starvationQueenDamage: 0.8,
+    ageRegenFromFood: 0.8,
+    ageRegenPoolMax: 140,
+    queenAgeRegenPerPool: 0.35,
+    workerAgeRegenPerPool: 1.25,
+    queenAgeRegenSpendMax: 0.45,
+    workerAgeRegenSpendMax: 1.4,
+    workerAgeRegenTargetsPerTick: 8,
+    workerAgeRegenAgeRatioMin: 0.22,
     successionFoodCost: 32,
     successionEnergyFloor: 25
   },
@@ -69,14 +77,14 @@ export const SIM_CONFIG = {
     upkeepEnergyCost: 0.6
   },
   lifecycle: {
-    queenMinAgeTicks: 26000,
-    queenMaxAgeTicks: 36000,
-    droneMinAgeTicks: 7500,
-    droneMaxAgeTicks: 12000,
-    soldierMinAgeTicks: 13000,
-    soldierMaxAgeTicks: 20000,
-    threatMinAgeTicks: 6500,
-    threatMaxAgeTicks: 11000
+    queenMinAgeTicks: 42000,
+    queenMaxAgeTicks: 70000,
+    droneMinAgeTicks: 18000,
+    droneMaxAgeTicks: 32000,
+    soldierMinAgeTicks: 26000,
+    soldierMaxAgeTicks: 42000,
+    threatMinAgeTicks: 12000,
+    threatMaxAgeTicks: 22000
   },
   communication: {
     trailDecay: 0.965,

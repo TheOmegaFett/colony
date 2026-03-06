@@ -49,6 +49,7 @@ test('colony system consumes food stock and converts food to energy', () => {
   const colony = {
     energy: 8,
     foodStock: 80,
+    ageRegenPool: 0,
     health: 100,
     dangerLevel: 0,
     priority: 'FORAGE',
@@ -61,6 +62,7 @@ test('colony system consumes food stock and converts food to energy', () => {
 
   assert.ok(colony.foodStock < 80);
   assert.ok(colony.energy > 8);
+  assert.ok(colony.ageRegenPool > 0);
   assert.equal(colony.starvationTicks, 0);
 });
 
@@ -72,6 +74,7 @@ test('colony system increments starvation and damages queen with no food', () =>
   const colony = {
     energy: 2,
     foodStock: 0,
+    ageRegenPool: 8,
     health: 100,
     dangerLevel: 0,
     priority: 'FORAGE',
@@ -84,6 +87,7 @@ test('colony system increments starvation and damages queen with no food', () =>
 
   assert.equal(colony.starvationTicks, 1);
   assert.ok(colony.energy < 2);
+  assert.ok(colony.ageRegenPool < 8);
   assert.equal(queenDamage.count, 1);
 });
 
@@ -99,6 +103,7 @@ test('colony priority switches to DEFEND at high danger', () => {
   const colony = {
     energy: 200,
     foodStock: 300,
+    ageRegenPool: 0,
     health: 100,
     dangerLevel: 0,
     priority: 'FORAGE',

@@ -40,6 +40,7 @@ export class ColonySystem {
 
   applyFoodEconomy(colony, hive, world) {
     const foodCfg = this.config.colony;
+    if (!Number.isFinite(colony.ageRegenPool)) colony.ageRegenPool = 0;
 
     const foodUse =
       foodCfg.baseFoodUsePerTick +
@@ -49,21 +50,30 @@ export class ColonySystem {
       hive.brood.length * foodCfg.broodFoodUsePerTick;
 
     let remainingNeed = foodUse;
+    let consumedFood = 0;
 
     const fromStock = Math.min(colony.foodStock, remainingNeed);
     colony.foodStock -= fromStock;
     remainingNeed -= fromStock;
     colony.energy += fromStock * foodCfg.foodToEnergyRatio;
+    consumedFood += fromStock;
 
     if (colony.energy < this.config.colony.lowEnergyThreshold && colony.foodStock > 0) {
       const burn = Math.min(colony.foodStock, foodCfg.extraFoodBurnPerTick);
       colony.foodStock -= burn;
       colony.energy += burn * foodCfg.foodToEnergyRatio;
+      consumedFood += burn;
     }
+
+    colony.ageRegenPool = Math.min(
+      foodCfg.ageRegenPoolMax,
+      colony.ageRegenPool + consumedFood * foodCfg.ageRegenFromFood
+    );
 
     if (remainingNeed > 0) {
       colony.starvationTicks += 1;
       colony.energy -= remainingNeed * foodCfg.starvationEnergyPenalty;
+      colony.ageRegenPool = Math.max(0, colony.ageRegenPool - remainingNeed * 4.5);
       if (
         hive.queen?.alive &&
         world.tick % foodCfg.starvationQueenDamageTicks === 0

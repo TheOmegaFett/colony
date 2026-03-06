@@ -46,6 +46,7 @@ The format is based on Keep a Changelog and this project aims to follow Semantic
 - Resource spawning now scales more aggressively with colony count and includes emergency forage support near severely starving colonies.
 - Lifespan ordering tuned so queens outlive soldiers, and soldiers outlive drones.
 - Agent spawn-age variance expanded to reduce synchronized die-off waves over time.
+- Food consumption now feeds a colony age-recovery pool that replenishes queen and older worker age (bounded per tick to avoid immortality).
 - HUD expanded with colony food stock, starvation, and queen age indicators.
 - Snapshot payload expanded for multi-colony and lifecycle fields (colony stockpile/succession, entity ages).
 - `package.json` now declares `"license": "MIT"`.
