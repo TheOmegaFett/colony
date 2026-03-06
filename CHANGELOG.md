@@ -22,6 +22,15 @@ The format is based on Keep a Changelog and this project aims to follow Semantic
   - Scroll-wheel zoom (cursor anchored)
   - Left-click drag panning
   - Camera clamping to world bounds
+- Full Node test suite using `node:test` with unit and integration coverage across:
+  - Protocol/constants
+  - World state
+  - Perception and hive communication systems
+  - Agent lifecycle
+  - Colony economy/danger/priority logic
+  - Simulation-level colony spawning, diplomacy, and succession behavior
+- GitHub Actions CI workflow (`.github/workflows/ci.yml`) running tests on push/PR (Node 20 and 22).
+- MIT license file (`LICENSE`).
 
 ### Changed
 - Simulation tick interval increased from `100ms` to `50ms` (10 TPS -> 20 TPS).
@@ -30,6 +39,8 @@ The format is based on Keep a Changelog and this project aims to follow Semantic
 - Diplomacy scarcity/abundance logic now considers colony food stock in addition to energy and world food availability.
 - HUD expanded with colony food stock, starvation, and queen age indicators.
 - Snapshot payload expanded for multi-colony and lifecycle fields (colony stockpile/succession, entity ages).
+- `package.json` now declares `"license": "MIT"`.
+- README header updated with badge pills (CI, Node version, License).
 
 ### Fixed
 - Server-side WebSocket broadcast readiness check updated to use `WebSocket.OPEN`.

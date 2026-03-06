@@ -1,5 +1,9 @@
 # Computational Hive (Node Prototype)
 
+[![CI](https://img.shields.io/github/actions/workflow/status/TheOmegaFett/colony/ci.yml?branch=Main&style=for-the-badge&label=CI)](https://github.com/TheOmegaFett/colony/actions/workflows/ci.yml)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-43853d?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/license-MIT-5c5c5c?style=for-the-badge)](./LICENSE)
+
 A prototype-first Node.js simulation where a colony behaves like a distributed hive mind.
 
 ## Features
