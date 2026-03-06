@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computational Hive</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="hud"></div>
+    <div id="legend" aria-label="Simulation color key">
+      <h3>Color Key</h3>
+      <div class="legend-note">Entity hue tracks colony. Relations are in HUD. Wheel to zoom, left-drag to pan.</div>
+      <div class="legend-grid">
+        <div class="legend-item"><span class="swatch queen"></span>Queen</div>
+        <div class="legend-item"><span class="swatch drone"></span>Drone</div>
+        <div class="legend-item"><span class="swatch drone-carry"></span>Drone (carrying food)</div>
+        <div class="legend-item"><span class="swatch soldier"></span>Soldier</div>
+        <div class="legend-item"><span class="swatch brood"></span>Brood</div>
+        <div class="legend-item"><span class="swatch threat"></span>Threat</div>
+        <div class="legend-item"><span class="swatch food"></span>Food pellet</div>
+        <div class="legend-item"><span class="swatch nest"></span>Nest zone</div>
+        <div class="legend-item"><span class="swatch hazard"></span>Hazard zone</div>
+        <div class="legend-item"><span class="swatch food-trail"></span>Food trail field</div>
+        <div class="legend-item"><span class="swatch danger-trail"></span>Danger trail field</div>
+      </div>
+    </div>
+    <canvas id="simCanvas"></canvas>
+
+    <div id="context-menu" class="hidden">
+      <button data-action="spawn_food">Drop Food Pellet</button>
+      <button data-action="spawn_threat">Drop Threat Agent</button>
+
+      <div class="submenu" id="colony-submenu">
+        <button class="submenu-trigger" type="button">Deploy Colony ▸</button>
+        <div class="submenu-panel">
+          <button data-action="spawn_colony" data-mode="competitive">Competing Colony Queen</button>
+          <button data-action="spawn_colony" data-mode="friendly">Full Friendly Colony</button>
+          <button data-action="spawn_colony" data-mode="hostile">Outright Hostile Colony</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/client.js"></script>
+  </body>
+</html>

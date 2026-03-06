@@ -1,0 +1,46 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on Keep a Changelog and this project aims to follow Semantic Versioning.
+
+## [Unreleased]
+
+### Added
+- Multi-colony simulation model with separate hive minds per colony (independent queen, nest, colony state, comm trails/signals/memory).
+- Dynamic inter-colony diplomacy states (`ally`, `neutral`, `hostile`) influenced by colony mode, threat pressure, and resource conditions.
+- Nested right-click menu options for colony deployment:
+  - `Competing Colony Queen`
+  - `Full Friendly Colony`
+  - `Outright Hostile Colony`
+- On-screen color key/legend for entities, zones, and communication trails.
+- Agent lifecycle aging (`ageTicks`, per-role `maxAgeTicks`) across queens, drones, soldiers, and threats.
+- Queen succession system: oldest drone can metamorph into a queen when a colony queen dies (if resources allow).
+- Colony food stockpile economy (`foodStock`) with consumption, conversion to energy, and starvation tracking.
+- Larger world/map dimensions (`2400x1600`).
+- Camera controls in client:
+  - Scroll-wheel zoom (cursor anchored)
+  - Left-click drag panning
+  - Camera clamping to world bounds
+
+### Changed
+- Simulation tick interval increased from `100ms` to `50ms` (10 TPS -> 20 TPS).
+- Drone food delivery now fills colony stockpile instead of directly adding energy.
+- Queen brood production now requires both food and energy costs.
+- Diplomacy scarcity/abundance logic now considers colony food stock in addition to energy and world food availability.
+- HUD expanded with colony food stock, starvation, and queen age indicators.
+- Snapshot payload expanded for multi-colony and lifecycle fields (colony stockpile/succession, entity ages).
+
+### Fixed
+- Server-side WebSocket broadcast readiness check updated to use `WebSocket.OPEN`.
+- Queen relocation site evaluation now uses provided communication context reliably.
+
+## [0.1.0] - 2026-03-07
+
+### Added
+- Initial Node.js computational hive prototype:
+  - Fixed-timestep simulation loop
+  - Queen, drone, soldier, brood, and threat agents
+  - Hive communication via local signals, trail fields, and short-term memory
+  - Canvas visualization with HUD
+  - Right-click spawning for food and threats

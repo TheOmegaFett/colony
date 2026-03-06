@@ -1,0 +1,14 @@
+{
+  "name": "computational-hive",
+  "version": "0.1.0",
+  "description": "Prototype computational hive simulation with role-based agents",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server/index.js",
+    "dev": "node --watch src/server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
+  }
+}
