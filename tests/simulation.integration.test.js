@@ -89,7 +89,7 @@ test('queen succession promotes oldest drone when food reserve allows it', () =>
   }
 
   drones[0].ageTicks = 10;
-  drones[1].ageTicks = 5000;
+  drones[1].ageTicks = drones[1].maxAgeTicks * 0.65;
   drones[1].x = 321;
   drones[1].y = 432;
 

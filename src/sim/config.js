@@ -1,5 +1,9 @@
+const TICK_MS = 50;
+const TICKS_PER_SECOND = Math.round(1000 / TICK_MS);
+const toTicks = (seconds) => Math.round(seconds * TICKS_PER_SECOND);
+
 export const SIM_CONFIG = {
-  tickMs: 50,
+  tickMs: TICK_MS,
   world: {
     width: 2400,
     height: 1600,
@@ -77,14 +81,16 @@ export const SIM_CONFIG = {
     upkeepEnergyCost: 0.6
   },
   lifecycle: {
-    queenMinAgeTicks: 42000,
-    queenMaxAgeTicks: 70000,
-    droneMinAgeTicks: 18000,
-    droneMaxAgeTicks: 32000,
-    soldierMinAgeTicks: 26000,
-    soldierMaxAgeTicks: 42000,
-    threatMinAgeTicks: 12000,
-    threatMaxAgeTicks: 22000
+    // Tuned for 20 TPS runtime. Workers live roughly around ~40 seconds
+    // with enough spread to avoid synchronized colony wipe-outs.
+    queenMinAgeTicks: toTicks(140),
+    queenMaxAgeTicks: toTicks(280),
+    droneMinAgeTicks: toTicks(32),
+    droneMaxAgeTicks: toTicks(68),
+    soldierMinAgeTicks: toTicks(45),
+    soldierMaxAgeTicks: toTicks(95),
+    threatMinAgeTicks: toTicks(35),
+    threatMaxAgeTicks: toTicks(80)
   },
   communication: {
     trailDecay: 0.965,

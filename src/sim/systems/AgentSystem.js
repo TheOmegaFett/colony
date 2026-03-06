@@ -47,11 +47,11 @@ export class AgentSystem {
 
   spawnColonySwarm(world, colonyId, x, y, droneCount, soldierCount) {
     for (let i = 0; i < droneCount; i += 1) {
-      const initialAge = randRange(0, this.config.lifecycle.droneMaxAgeTicks * 0.45);
+      const initialAge = randRange(0, this.config.lifecycle.droneMaxAgeTicks * 0.25);
       this.spawnDrone(world, x + randRange(-30, 30), y + randRange(-30, 30), colonyId, initialAge);
     }
     for (let i = 0; i < soldierCount; i += 1) {
-      const initialAge = randRange(0, this.config.lifecycle.soldierMaxAgeTicks * 0.4);
+      const initialAge = randRange(0, this.config.lifecycle.soldierMaxAgeTicks * 0.22);
       this.spawnSoldier(world, x + randRange(-25, 25), y + randRange(-25, 25), colonyId, initialAge);
     }
   }
@@ -100,7 +100,7 @@ export class AgentSystem {
 
     for (const item of matured) {
       if (item.role === 'soldier') {
-        const ageJitter = randRange(0, this.config.lifecycle.soldierMaxAgeTicks * 0.08);
+        const ageJitter = randRange(0, this.config.lifecycle.soldierMaxAgeTicks * 0.1);
         this.spawnSoldier(
           world,
           item.brood.x + randRange(-8, 8),
@@ -109,7 +109,7 @@ export class AgentSystem {
           ageJitter
         );
       } else {
-        const ageJitter = randRange(0, this.config.lifecycle.droneMaxAgeTicks * 0.08);
+        const ageJitter = randRange(0, this.config.lifecycle.droneMaxAgeTicks * 0.12);
         this.spawnDrone(
           world,
           item.brood.x + randRange(-8, 8),
